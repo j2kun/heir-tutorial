@@ -3,7 +3,7 @@ import random
 import torch
 from torchvision import datasets
 from torchvision.transforms import v2
-from model import NeuralNetwork
+from model import FashionMNIST
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
     )
     print(f"Using {device} device")
 
-    model = NeuralNetwork().to(device)
+    model = FashionMNIST().to(device)
 
     # Resolve model path
     workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
@@ -55,6 +55,19 @@ def main():
 
     model.eval()
     
+    activations = {}
+    def get_activation(name):
+        def hook(module, input, output):
+            if name not in activations:
+                activations[name] = []
+            activations[name].append(output.detach().cpu())
+        return hook
+
+    hooks = []
+    for name, module in model.named_modules():
+        if name != "" and name != "linear_relu_stack":
+            hooks.append(module.register_forward_hook(get_activation(name)))
+    
     num_samples = 100
     indices = random.sample(range(len(training_data)), num_samples)
     
@@ -72,6 +85,22 @@ def main():
             print(f'Predicted: "{predicted}", Actual: "{actual}"')
             
     print(f"\nAccuracy on 100 random training samples: {correct}/{num_samples} ({correct/num_samples*100:.1f}%)")
+
+    for hook in hooks:
+        hook.remove()
+
+    print("\nQuantiles of intermediate values:")
+    for name, acts in activations.items():
+        all_acts = torch.cat(acts, dim=0)
+        flat_acts = all_acts.view(-1).float()
+        quantiles = torch.tensor([0.0, 0.25, 0.5, 0.75, 1.0])
+        q_vals = torch.quantile(flat_acts, quantiles)
+        print(f"Node: {name}")
+        print(f"  0% (min): {q_vals[0]:.4f}")
+        print(f" 25%:       {q_vals[1]:.4f}")
+        print(f" 50% (med): {q_vals[2]:.4f}")
+        print(f" 75%:       {q_vals[3]:.4f}")
+        print(f"100% (max): {q_vals[4]:.4f}")
 
 
 if __name__ == "__main__":

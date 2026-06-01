@@ -5,9 +5,9 @@ from torch_mlir.fx import OutputType
 import model
 
 checkpoint = torch.load("model.pth", map_location="cpu")
-model = model.MLP()
+model = model.FashionMNIST()
 
-model.load_state_dict(checkpoint["model_state_dict"])
+model.load_state_dict(checkpoint)
 model.eval()
 
 sample_input = torch.randn(1, 28 * 28)

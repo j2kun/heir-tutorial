@@ -3,3 +3,6 @@ bazel-heir-tutorial
 bazel-out
 bazel-testlogs
 data/
+
+venv
+__pycache__

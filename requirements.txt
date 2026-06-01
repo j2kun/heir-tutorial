@@ -1,2 +1,4 @@
 torch
 torchvision
+torch-mlir
+typing-extensions

@@ -4,7 +4,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import v2
-from src.model import NeuralNetwork
+from src.model import FashionMNIST
 
 
 def main():
@@ -43,7 +43,7 @@ def main():
     )
     print(f"Using {device} device")
 
-    model = NeuralNetwork().to(device)
+    model = FashionMNIST().to(device)
     print(model)
 
     loss_fn = nn.CrossEntropyLoss()

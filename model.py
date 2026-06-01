@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-class NeuralNetwork(nn.Module):
+class FashionMNIST(nn.Module):
     def __init__(self):
         super().__init__()
         self.flatten = nn.Flatten()
