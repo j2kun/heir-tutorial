@@ -9,6 +9,14 @@
 (Bazel will manage all other dependencies, including the C++ toolchain and
 Lattigo/OpenFHE)
 
+## Download train/test data
+
+```bash
+bazel run download_data
+```
+
+Puts the training/test data in `data/`
+
 ## Using the model_annotated.mlir already in this repo
 
 Just run HEIR and view the generated C++ code
@@ -16,15 +24,14 @@ Just run HEIR and view the generated C++ code
 ```bash
 bazel build :all
 
-less bazel-bin/fashion_mnist.inc.h
-less bazel-bin/fashion_mnist_lib.inc.cc
+less bazel-bin/fashionmnist_lib.go
+less bazel-bin/fashion_mnist_heir_opt.mlir
 ```
 
-Note you can also run the tests/binary
+Note you can also run the binary
 
 ```bash
-bazel test fashion_mnist_test_py
-bazel run fashion_mnist_bin
+bazel run fashion_mnist_bun
 ```
 
 ## Full workflow

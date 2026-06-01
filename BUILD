@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_test")
+load("@rules_go//go:def.bzl", "go_binary", "go_test")
 load("@rules_heir//heir:lattigo.bzl", "heir_lattigo_lib")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
@@ -48,6 +48,18 @@ heir_lattigo_lib(
     split_preprocessing = False,
 )
 
+heir_lattigo_lib(
+    name = "fashion_mnist_bin_lib",
+    go_library_name = "main",
+    heir_opt_flags = [
+        "--annotate-module=backend=lattigo scheme=ckks",
+        "--torch-linalg-to-ckks=ciphertext-degree=1024",
+        "--scheme-to-lattigo",
+    ],
+    mlir_src = "model_annotated.mlir",
+    split_preprocessing = False,
+)
+
 go_test(
     name = "fashion_mnist_test",
     size = "large",
@@ -57,4 +69,14 @@ go_test(
         "data/t10k-labels-idx1-ubyte",
     ],
     embed = [":fashionmnist"],
+)
+
+go_binary(
+    name = "fashion_mnist_bin",
+    srcs = ["fashion_mnist_bin.go"],
+    data = [
+        "data/t10k-images-idx3-ubyte",
+        "data/t10k-labels-idx1-ubyte",
+    ],
+    embed = [":main"],
 )
