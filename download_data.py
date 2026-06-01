@@ -9,7 +9,12 @@ urls = [
     "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz",
 ]
 
-data_dir = "data"
+workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
+if workspace_dir:
+    data_dir = os.path.join(workspace_dir, "data")
+else:
+    data_dir = "data"
+
 os.makedirs(data_dir, exist_ok=True)
 
 for url in urls:

@@ -31,6 +31,11 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "download_data",
+    srcs = ["download_data.py"],
+)
+
 heir_lattigo_lib(
     name = "fashion_mnist",
     go_library_name = "fashionmnist",
