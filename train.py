@@ -1,10 +1,31 @@
 import os
+import struct
+import numpy as np
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
-from torchvision import datasets
-from torchvision.transforms import v2
-from src.model import FashionMNIST
+from torch.utils.data import DataLoader, TensorDataset
+from model import FashionMNIST
+
+
+def load_fashion_mnist(root, train=True):
+    if train:
+        images_path = os.path.join(root, "train-images-idx3-ubyte")
+        labels_path = os.path.join(root, "train-labels-idx1-ubyte")
+    else:
+        images_path = os.path.join(root, "t10k-images-idx3-ubyte")
+        labels_path = os.path.join(root, "t10k-labels-idx1-ubyte")
+
+    with open(images_path, "rb") as f:
+        magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
+        images = np.fromfile(f, dtype=np.uint8).reshape(num, 1, rows, cols)
+        images = torch.from_numpy(images).float() / 255.0
+
+    with open(labels_path, "rb") as f:
+        magic, num = struct.unpack(">II", f.read(8))
+        labels = np.fromfile(f, dtype=np.uint8)
+        labels = torch.from_numpy(labels).long()
+
+    return TensorDataset(images, labels)
 
 
 def main():
@@ -14,21 +35,8 @@ def main():
     else:
         data_root = "data"
 
-    # Download training data from open datasets.
-    training_data = datasets.FashionMNIST(
-        root=data_root,
-        train=True,
-        download=True,
-        transform=v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)]),
-    )
-
-    # Download test data from open datasets.
-    test_data = datasets.FashionMNIST(
-        root=data_root,
-        train=False,
-        download=True,
-        transform=v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)]),
-    )
+    training_data = load_fashion_mnist(data_root, train=True)
+    test_data = load_fashion_mnist(data_root, train=False)
 
     batch_size = 64
 

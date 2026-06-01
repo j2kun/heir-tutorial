@@ -1,9 +1,31 @@
 import os
 import random
+import struct
+import numpy as np
 import torch
-from torchvision import datasets
-from torchvision.transforms import v2
+from torch.utils.data import TensorDataset
 from model import FashionMNIST
+
+
+def load_fashion_mnist(root, train=True):
+    if train:
+        images_path = os.path.join(root, "train-images-idx3-ubyte")
+        labels_path = os.path.join(root, "train-labels-idx1-ubyte")
+    else:
+        images_path = os.path.join(root, "t10k-images-idx3-ubyte")
+        labels_path = os.path.join(root, "t10k-labels-idx1-ubyte")
+
+    with open(images_path, "rb") as f:
+        magic, num, rows, cols = struct.unpack(">IIII", f.read(16))
+        images = np.fromfile(f, dtype=np.uint8).reshape(num, 1, rows, cols)
+        images = torch.from_numpy(images).float() / 255.0
+
+    with open(labels_path, "rb") as f:
+        magic, num = struct.unpack(">II", f.read(8))
+        labels = np.fromfile(f, dtype=np.uint8)
+        labels = torch.from_numpy(labels).long()
+
+    return TensorDataset(images, labels)
 
 
 def main():
@@ -45,32 +67,28 @@ def main():
         "Ankle boot",
     ]
 
-    # Download training data from open datasets
-    training_data = datasets.FashionMNIST(
-        root=data_root,
-        train=True,
-        download=True,
-        transform=v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)]),
-    )
+    training_data = load_fashion_mnist(data_root, train=True)
 
     model.eval()
-    
+
     activations = {}
+
     def get_activation(name):
         def hook(module, input, output):
             if name not in activations:
                 activations[name] = []
             activations[name].append(output.detach().cpu())
+
         return hook
 
     hooks = []
     for name, module in model.named_modules():
         if name != "" and name != "linear_relu_stack":
             hooks.append(module.register_forward_hook(get_activation(name)))
-    
+
     num_samples = 100
     indices = random.sample(range(len(training_data)), num_samples)
-    
+
     correct = 0
     with torch.no_grad():
         for i in indices:
@@ -83,8 +101,10 @@ def main():
             if predicted == actual:
                 correct += 1
             print(f'Predicted: "{predicted}", Actual: "{actual}"')
-            
-    print(f"\nAccuracy on 100 random training samples: {correct}/{num_samples} ({correct/num_samples*100:.1f}%)")
+
+    print(
+        f"\nAccuracy on 100 random training samples: {correct}/{num_samples} ({correct/num_samples*100:.1f}%)"
+    )
 
     for hook in hooks:
         hook.remove()
