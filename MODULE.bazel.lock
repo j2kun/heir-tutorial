@@ -247,6 +247,22 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "@@openfhe+//:openfhe_config.bzl%openfhe_config": {
+      "general": {
+        "bzlTransitiveDigest": "nFlXThAIBaRTx9TFyAt1wmQ2XH9X6OGqu/z01+5yuFg=",
+        "usagesDigest": "MX7LZmdj96T+Mu+DyOepSIrQltLo0wCi3cE55Kjpzk4=",
+        "recordedInputs": [],
+        "generatedRepoSpecs": {
+          "openfhe_config": {
+            "repoRuleId": "@@openfhe+//:openfhe_config.bzl%_config_repo",
+            "attributes": {
+              "has_int128": true,
+              "mathbackend": 2
+            }
+          }
+        }
+      }
+    },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
       "general": {
         "bzlTransitiveDigest": "Ga4z8lQy1YQ5rAMy+dOl0dqcCEBnYNCXku8x3YQmDZI=",
