@@ -31,7 +31,7 @@ less bazel-bin/fashion_mnist_heir_opt.mlir
 Note you can also run the binary
 
 ```bash
-bazel run fashion_mnist_bun
+bazel run fashion_mnist_bin
 ```
 
 ## Full workflow
