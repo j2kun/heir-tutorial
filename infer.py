@@ -1,4 +1,5 @@
 import os
+import random
 import torch
 from torchvision import datasets
 from torchvision.transforms import v2
@@ -44,23 +45,33 @@ def main():
         "Ankle boot",
     ]
 
-    # Download test data from open datasets
-    test_data = datasets.FashionMNIST(
+    # Download training data from open datasets
+    training_data = datasets.FashionMNIST(
         root=data_root,
-        train=False,
+        train=True,
         download=True,
         transform=v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)]),
     )
 
     model.eval()
-    x, y = test_data[0][0], test_data[0][1]
+    
+    num_samples = 100
+    indices = random.sample(range(len(training_data)), num_samples)
+    
+    correct = 0
     with torch.no_grad():
-        x = x.to(device)
-        # Add batch dimension
-        x = x.unsqueeze(0)
-        pred = model(x)
-        predicted, actual = classes[pred[0].argmax(0)], classes[y]
-        print(f'Predicted: "{predicted}", Actual: "{actual}"')
+        for i in indices:
+            x, y = training_data[i][0], training_data[i][1]
+            x = x.to(device)
+            # Add batch dimension
+            x = x.unsqueeze(0)
+            pred = model(x)
+            predicted, actual = classes[pred[0].argmax(0)], classes[y]
+            if predicted == actual:
+                correct += 1
+            print(f'Predicted: "{predicted}", Actual: "{actual}"')
+            
+    print(f"\nAccuracy on 100 random training samples: {correct}/{num_samples} ({correct/num_samples*100:.1f}%)")
 
 
 if __name__ == "__main__":
