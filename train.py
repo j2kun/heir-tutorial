@@ -6,12 +6,13 @@ from torchvision import datasets
 from torchvision.transforms import v2
 from src.model import NeuralNetwork
 
+
 def main():
-    workspace_dir = os.environ.get('BUILD_WORKSPACE_DIRECTORY')
+    workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
     if workspace_dir:
-        data_root = os.path.join(workspace_dir, 'data')
+        data_root = os.path.join(workspace_dir, "data")
     else:
-        data_root = 'data'
+        data_root = "data"
 
     # Download training data from open datasets.
     training_data = datasets.FashionMNIST(
@@ -35,7 +36,11 @@ def main():
     train_dataloader = DataLoader(training_data, batch_size=batch_size)
     test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
-    device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+    device = (
+        torch.accelerator.current_accelerator().type
+        if torch.accelerator.is_available()
+        else "cpu"
+    )
     print(f"Using {device} device")
 
     model = NeuralNetwork().to(device)
@@ -52,14 +57,15 @@ def main():
     print("Done!")
 
     # Save model
-    workspace_dir = os.environ.get('BUILD_WORKSPACE_DIRECTORY')
+    workspace_dir = os.environ.get("BUILD_WORKSPACE_DIRECTORY")
     if workspace_dir:
-        save_path = os.path.join(workspace_dir, 'model.pth')
+        save_path = os.path.join(workspace_dir, "model.pth")
     else:
-        save_path = 'model.pth'
-    
+        save_path = "model.pth"
+
     torch.save(model.state_dict(), save_path)
     print(f"Saved PyTorch Model State to {save_path}")
+
 
 def train(dataloader, model, loss_fn, optimizer, device):
     size = len(dataloader.dataset)
@@ -80,6 +86,7 @@ def train(dataloader, model, loss_fn, optimizer, device):
             loss, current = loss.item(), (batch + 1) * len(X)
             print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}]")
 
+
 def test(dataloader, model, loss_fn, device):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
@@ -93,7 +100,10 @@ def test(dataloader, model, loss_fn, device):
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
     correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(
+        f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n"
+    )
+
 
 if __name__ == "__main__":
     main()
