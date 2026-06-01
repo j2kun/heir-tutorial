@@ -1,0 +1,5 @@
+bazel-bin
+bazel-heir-tutorial
+bazel-out
+bazel-testlogs
+data/
